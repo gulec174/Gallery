@@ -1,7 +1,6 @@
 package com.example.gallery
 
 
-
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater

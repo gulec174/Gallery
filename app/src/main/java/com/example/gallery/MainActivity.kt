@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gallery.ImageGalleryAdapter.ClickListener
-
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 1
@@ -90,7 +90,8 @@ class MainActivity : AppCompatActivity() {
             cursor.moveToFirst()
             do {
                 val path =
-                    cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Images.Media.DATA))
+                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+                Log.d("!!!", "Cursor, put image ${path}")
                 imagesPath.add(path)
             } while (cursor.moveToNext())
             cursor.close()

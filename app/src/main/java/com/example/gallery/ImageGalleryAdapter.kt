@@ -1,6 +1,7 @@
 package com.example.gallery
 
 import android.content.Context
+import android.util.Log
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.ImageView
@@ -26,6 +27,7 @@ class ImageGalleryAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d("!!!", "onBindViewHolder, glide load image path = ${imagesPath[position]}")
         Glide.with(mContext).load(File(imagesPath[position]))
             .thumbnail(0.5f)
             .crossFade()
@@ -49,7 +51,7 @@ class ImageGalleryAdapter(
     class RecyclerTouchListener(
         context: Context?,
         recyclerView: RecyclerView,
-        clickListener: ImageGalleryAdapter.ClickListener?
+        clickListener: ClickListener?
     ) :
         OnItemTouchListener {
         private val gestureDetector: GestureDetector
