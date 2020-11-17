@@ -8,6 +8,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,7 +22,7 @@ import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var imagesPath: ArrayList<String>
+    private lateinit var imagesPath: ArrayList<Image>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +58,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getImages(): ArrayList<String> {
-        val imagesPath = ArrayList<String>()
+    private fun getImages(): ArrayList<Image> {
+        val imagesPath = ArrayList<Image>()
         val projection = arrayOf(
             MediaStore.Images.ImageColumns._ID,
             "_data",
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             do {
                 val path =
                     cursor.getString(cursor.getColumnIndex("_data"))
-                imagesPath.add(path)
+                imagesPath.add(Image(path))
             } while (cursor.moveToNext())
             cursor.close()
             return imagesPath
@@ -111,15 +112,16 @@ class MainActivity : AppCompatActivity() {
                 recyclerView,
                 object : ClickListener {
                     override fun onClick(view: View?, position: Int) {
-                        val bundle = Bundle()
-                        bundle.putStringArrayList(Storage.IMAGES_KEY, imagesPath)
-                        bundle.putInt(Storage.IMAGE_PATH_KEY, position)
-
                         val ft: FragmentTransaction =
                             supportFragmentManager.beginTransaction()
                         val newFragment: SlideshowDialogFragment? =
-                            SlideshowDialogFragment.newInstance(bundle)
-                        newFragment?.show(ft, Storage.TAG)
+                            SlideshowDialogFragment.newInstance(imagesPath, position)
+
+                        with(ft) {
+                            add(R.id.general_screen, newFragment as Fragment)
+                            addToBackStack(null)
+                            commit()
+                        }
                     }
 
                     override fun onLongClick(view: View?, position: Int) {}

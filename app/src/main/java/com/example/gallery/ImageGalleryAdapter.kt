@@ -12,7 +12,7 @@ import java.io.File
 
 
 class ImageGalleryAdapter(
-    private var imagesPath: List<String>
+    private var imagesPath: ArrayList<Image>
 ) :
     RecyclerView.Adapter<ImageGalleryAdapter.ViewHolder>() {
 
@@ -26,7 +26,7 @@ class ImageGalleryAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(imagesPath[position])
+        holder.bind(imagesPath[position].uri)
     }
 
     class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {

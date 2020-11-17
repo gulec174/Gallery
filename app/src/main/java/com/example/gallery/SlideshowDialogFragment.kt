@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -15,16 +15,20 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import java.io.File
 
 
-class SlideshowDialogFragment : DialogFragment() {
+class SlideshowDialogFragment : Fragment() {
     private lateinit var viewPager: ViewPager
     private lateinit var myViewPagerAdapter: GalleryAdapter
-    private lateinit var images: ArrayList<String>
+    private lateinit var images: ArrayList<Image>
     private var selectedPosition = 0
 
     companion object {
-        fun newInstance(args: Bundle?): SlideshowDialogFragment? {
+        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowDialogFragment? {
+            val bundle = Bundle()
+            bundle.putSerializable(Storage.IMAGES_KEY, imagesPath)
+            bundle.putInt(Storage.IMAGE_PATH_KEY, position)
+
             val slideshowDialogFragment = SlideshowDialogFragment()
-            slideshowDialogFragment.arguments = args
+            slideshowDialogFragment.arguments = bundle
             return slideshowDialogFragment
         }
     }
@@ -41,7 +45,9 @@ class SlideshowDialogFragment : DialogFragment() {
         requireActivity()
 
         selectedPosition = arguments?.getInt(Storage.IMAGE_PATH_KEY) as Int
-        images = arguments?.getStringArrayList(Storage.IMAGES_KEY) as ArrayList<String>
+        @Suppress("UNCHECKED_CAST")
+        images = arguments?.getSerializable(Storage.IMAGES_KEY) as ArrayList<Image>
+
 
         myViewPagerAdapter = GalleryAdapter()
         viewPager = v.findViewById(R.id.pager)
@@ -73,7 +79,7 @@ class SlideshowDialogFragment : DialogFragment() {
             val view: View =
                 layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false)
             val imagePreview: ImageView = view.findViewById(R.id.image_full_screen)
-            Glide.with(requireActivity()).load(File(images[position]))
+            Glide.with(requireActivity()).load(File(images[position].uri))
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
