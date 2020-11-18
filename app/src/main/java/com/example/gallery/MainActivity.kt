@@ -27,6 +27,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+
         val permissionStatus =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
@@ -38,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 Storage.REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE
             )
         }
+
     }
 
 
