@@ -39,7 +39,6 @@ class ImageGalleryAdapter(
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView)
         }
-
     }
 
     interface ClickListener {

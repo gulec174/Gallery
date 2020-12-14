@@ -3,10 +3,8 @@ package com.example.gallery
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Rect
-import android.graphics.RectF
+
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -18,17 +16,11 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
 
     private var mGestureDetector = GestureDetector(context, GestureListener())
 
-    private val mCurrentViewport = RectF(0f, 0f, 10f, 10f)
-
     private var mScaleDetector: ScaleGestureDetector =
         ScaleGestureDetector(context, ScaleListener())
     private var mScaleFactor: Float = 1f
-
-    private val kMinBoardScale = 0.1f
-    private val kMaxBoardScale = 10f
     private var mBoardScale = 1f
 
-    private val mContentRect: Rect? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -62,6 +54,8 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
 
     inner class GestureListener : SimpleOnGestureListener() {
 
+        private var currentX = 0
+        private var currentY = 0
 
         override fun onScroll(
             e1: MotionEvent?,
@@ -69,12 +63,15 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            return Math.abs(distanceX) > Math.abs(distanceY) || super.onScroll(
-                e1,
-                e2,
-                distanceX,
-                distanceY
-            )
+            this@MyImageView.width
+            with(this@MyImageView) {
+                if (scaleX > 1f || scaleY > 1f) {
+                    currentY += distanceY.toInt()
+                    currentX += distanceX.toInt()
+                    scrollTo(currentX, currentY)
+                }
+            }
+            return true
         }
 
         override fun onDown(e: MotionEvent): Boolean {
@@ -86,6 +83,8 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
             with(this@MyImageView) {
                 scaleX = 1f
                 scaleY = 1f
+                scaleType = ScaleType.FIT_CENTER
+                scrollBy(0, 0)
             }
             return true
         }
