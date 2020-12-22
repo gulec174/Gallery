@@ -1,4 +1,4 @@
-package com.example.gallery
+package com.example.gallery.presentation.common
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -69,6 +69,7 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
                     currentY += distanceY.toInt()
                     currentX += distanceX.toInt()
                     scrollTo(currentX, currentY)
+                    invalidate()
                 }
             }
             return true
@@ -83,8 +84,7 @@ class MyImageView(context: Context, attributeSet: AttributeSet) :
             with(this@MyImageView) {
                 scaleX = 1f
                 scaleY = 1f
-                scaleType = ScaleType.FIT_CENTER
-                scrollBy(0, 0)
+
             }
             return true
         }

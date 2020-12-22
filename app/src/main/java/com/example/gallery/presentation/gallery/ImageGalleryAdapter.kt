@@ -1,4 +1,4 @@
-package com.example.gallery
+package com.example.gallery.presentation.gallery
 
 import android.content.Context
 import android.view.*
@@ -8,17 +8,26 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.gallery.core.data.Image
+import com.example.gallery.R
 import java.io.File
 
 
-class ImageGalleryAdapter(
-    private var imagesPath: ArrayList<Image>
-) :
+class ImageGalleryAdapter :
     RecyclerView.Adapter<ImageGalleryAdapter.ViewHolder>() {
+
+    private var imagesPath: List<Image> = ArrayList()
+
+    fun refreshImages(images: List<Image>) {
+        this.imagesPath = images
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val view: View = LayoutInflater.from(p0.context).inflate(R.layout.item_photo, p0, false)
-        return ViewHolder(view)
+        return ViewHolder(
+            view
+        )
     }
 
     override fun getItemCount(): Int {

@@ -1,4 +1,4 @@
-package com.example.gallery
+package com.example.gallery.presentation.details
 
 import android.content.Context
 import android.os.Bundle
@@ -12,22 +12,27 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.gallery.core.data.Image
+import com.example.gallery.R
 import java.io.File
 
 
-class SlideshowDialogFragment : Fragment() {
+class SlideshowFragment : Fragment() {
     private lateinit var viewPager: ViewPager
     private lateinit var myViewPagerAdapter: GalleryAdapter
-    private lateinit var images: ArrayList<Image>
     private var selectedPosition = 0
 
-    companion object {
-        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowDialogFragment? {
-            val bundle = Bundle()
-            bundle.putSerializable(Storage.IMAGES_KEY, imagesPath)
-            bundle.putInt(Storage.IMAGE_PATH_KEY, position)
+    private val slideshowViewModel by lazy { SlideshowViewModel() }
 
-            val slideshowDialogFragment = SlideshowDialogFragment()
+    companion object {
+        const val IMAGES_KEY = "images"
+        const val IMAGE_PATH_KEY = "image_path"
+        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowFragment? {
+            val bundle = Bundle()
+            bundle.putSerializable(IMAGES_KEY, imagesPath)
+            bundle.putInt(IMAGE_PATH_KEY, position)
+
+            val slideshowDialogFragment = SlideshowFragment()
             slideshowDialogFragment.arguments = bundle
             return slideshowDialogFragment
         }
@@ -44,9 +49,9 @@ class SlideshowDialogFragment : Fragment() {
 
         requireActivity()
 
-        selectedPosition = arguments?.getInt(Storage.IMAGE_PATH_KEY) as Int
+        selectedPosition = arguments?.getInt(IMAGE_PATH_KEY) as Int
         @Suppress("UNCHECKED_CAST")
-        images = arguments?.getSerializable(Storage.IMAGES_KEY) as ArrayList<Image>
+        slideshowViewModel.imagePaths = arguments?.getSerializable(IMAGES_KEY) as ArrayList<Image>
 
 
         myViewPagerAdapter = GalleryAdapter()
@@ -79,7 +84,7 @@ class SlideshowDialogFragment : Fragment() {
             val view: View =
                 layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false)
             val imagePreview: ImageView = view.findViewById(R.id.image_full_screen)
-            Glide.with(requireActivity()).load(File(images[position].uri))
+            Glide.with(requireActivity()).load(File(slideshowViewModel.getImage(position).uri))
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -94,7 +99,7 @@ class SlideshowDialogFragment : Fragment() {
         }
 
         override fun getCount(): Int {
-            return images.size
+            return slideshowViewModel.imagePaths.size
         }
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
