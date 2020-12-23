@@ -9,4 +9,8 @@ class SlideshowViewModel : ViewModel() {
     fun getImage(position: Int): Image {
         return imagePaths[position]
     }
+
+    fun setup(paths: List<Image>) {
+
+    }
 }

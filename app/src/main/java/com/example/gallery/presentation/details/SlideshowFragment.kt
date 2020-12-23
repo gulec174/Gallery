@@ -24,20 +24,6 @@ class SlideshowFragment : Fragment() {
 
     private val slideshowViewModel by lazy { SlideshowViewModel() }
 
-    companion object {
-        const val IMAGES_KEY = "images"
-        const val IMAGE_PATH_KEY = "image_path"
-        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowFragment? {
-            val bundle = Bundle()
-            bundle.putSerializable(IMAGES_KEY, imagesPath)
-            bundle.putInt(IMAGE_PATH_KEY, position)
-
-            val slideshowDialogFragment = SlideshowFragment()
-            slideshowDialogFragment.arguments = bundle
-            return slideshowDialogFragment
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -104,6 +90,21 @@ class SlideshowFragment : Fragment() {
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             container.removeView(`object` as View)
+        }
+    }
+
+    companion object {
+        const val IMAGES_KEY = "images"
+        const val IMAGE_PATH_KEY = "image_path"
+
+        fun newInstance(imagesPath: List<Image>, position: Int): SlideshowFragment {
+            val bundle = Bundle()
+            bundle.putSerializable(IMAGES_KEY, imagesPath)
+            bundle.putInt(IMAGE_PATH_KEY, position)
+
+            val slideshowDialogFragment = SlideshowFragment()
+            slideshowDialogFragment.arguments = bundle
+            return slideshowDialogFragment
         }
     }
 

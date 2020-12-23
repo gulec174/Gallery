@@ -78,11 +78,11 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
     override fun goToSlideshowFragment(imagesPath: List<Image>?, position: Int) {
         val ft: FragmentTransaction =
             supportFragmentManager.beginTransaction()
-        val newFragment: SlideshowFragment? =
-            SlideshowFragment.newInstance(imagesPath as ArrayList<Image>, position)
+        val newFragment: SlideshowFragment =
+            SlideshowFragment.newInstance(imagesPath, position)
 
         with(ft) {
-            add(R.id.general_screen, newFragment as Fragment)
+            add(R.id.general_screen, newFragment)
             addToBackStack(null)
             commit()
         }
