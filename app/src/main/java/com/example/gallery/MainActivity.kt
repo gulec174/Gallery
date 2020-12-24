@@ -8,13 +8,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.gallery.core.data.Image
+import com.example.gallery.databinding.ActivityMainBinding
 import com.example.gallery.presentation.details.SlideshowFragment
 import com.example.gallery.presentation.gallery.GalleryFragment
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
+
+    private val viewBinding by viewBinding(ActivityMainBinding::bind)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +40,6 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
                 REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE
             )
         }
-
     }
 
     override fun onRequestPermissionsResult(
@@ -65,12 +67,12 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
         val newFragment = GalleryFragment.getInstance()
 
         with(ft) {
-            add(R.id.general_screen, newFragment as Fragment)
-            addToBackStack(null)
+            add(viewBinding.generalScreen.id, newFragment as Fragment)
             commit()
         }
 
     }
+
 
     override fun goToSlideshowFragment(imagesPath: List<Image>, position: Int) {
         val ft: FragmentTransaction =
@@ -79,17 +81,9 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
             SlideshowFragment.newInstance(imagesPath as ArrayList<Image>, position)
 
         with(ft) {
-            add(R.id.general_screen, newFragment as Fragment)
+            add(viewBinding.generalScreen.id, newFragment as Fragment)
             addToBackStack(null)
             commit()
-        }
-    }
-
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            finish()
-        } else {
-            super.onBackPressed()
         }
     }
 

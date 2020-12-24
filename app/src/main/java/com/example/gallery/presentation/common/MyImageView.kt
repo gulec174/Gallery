@@ -3,7 +3,6 @@ package com.example.gallery.presentation.common
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener

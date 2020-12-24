@@ -5,25 +5,41 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.gallery.MainActivity
 import com.example.gallery.R
 import com.example.gallery.core.data.Image
+import com.example.gallery.databinding.GalleryFragmentBinding
+import com.example.gallery.presentation.common.GalleryViewModelFactory
+import com.example.gallery.presentation.common.di.ApplicationModule
+import com.example.gallery.presentation.common.di.DaggerApplicationComponent
+import javax.inject.Inject
+
 
 class GalleryFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
-    private val galleryViewModel: GalleryViewModel by lazy { GalleryViewModel(requireContext().contentResolver) }
-
     private lateinit var mainActivity: MainActivity
+    private lateinit var mGalleryViewModel: GalleryViewModel
+
+    private val viewBinding by viewBinding(GalleryFragmentBinding::bind)
+
+    @Inject
+    lateinit var galleryViewModelFactory: GalleryViewModelFactory
 
     override fun onAttach(context: Context) {
+        DaggerApplicationComponent.builder().applicationModule(ApplicationModule(requireContext())).build().inject(this)
         super.onAttach(context)
         mainActivity = context as MainActivity
+        val aGalleryViewModel: GalleryViewModel by requireActivity().viewModels {
+            galleryViewModelFactory
+        }
+
+        mGalleryViewModel = aGalleryViewModel
+
     }
 
 
@@ -31,46 +47,43 @@ class GalleryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val v: View =
-            inflater.inflate(R.layout.gallery_fragment, container, false)
+    ): View {
+        return inflater.inflate(R.layout.gallery_fragment, container, false)
+    }
 
-        recyclerView = v.findViewById(R.id.rv)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val adapter = ImageGalleryAdapter()
-        with(recyclerView) {
+        with(viewBinding.rv) {
             layoutManager = GridLayoutManager(context, 3)
             itemAnimator = DefaultItemAnimator()
             this.adapter = adapter
+            addOnItemTouchListener(
+                ImageGalleryAdapter.RecyclerTouchListener(
+                    context,
+                    this,
+                    object : ImageGalleryAdapter.ClickListener {
+                        override fun onClick(view: View?, position: Int) {
+                            mGalleryViewModel.onItemClick(position)
+                        }
+
+                        override fun onLongClick(view: View?, position: Int) {}
+                    })
+            )
         }
 
-        recyclerView.addOnItemTouchListener(
-            ImageGalleryAdapter.RecyclerTouchListener(
-                context,
-                recyclerView,
-                object : ImageGalleryAdapter.ClickListener {
-                    override fun onClick(view: View?, position: Int) {
-                        galleryViewModel.onItemClick(position)
-                    }
+        mGalleryViewModel.apply {
 
-                    override fun onLongClick(view: View?, position: Int) {}
-                })
-        )
-
-        galleryViewModel.imagePaths.observe(viewLifecycleOwner) {
-            adapter.refreshImages(it)
+            imagePaths.observe(viewLifecycleOwner, { adapter.refreshImages(it) })
+            eventProvider.observe(viewLifecycleOwner, {
+                when (it) {
+                    is GalleryViewModel.Event.ShowDetails ->
+                        mainActivity.goToSlideshowFragment(
+                            mGalleryViewModel.imagePaths.value!!,
+                            it.position
+                        )
+                }
+            })
         }
-
-        galleryViewModel.eventProvider.observe(viewLifecycleOwner) {
-            when (it) {
-                is GalleryViewModel.Event.ShowDetails ->
-                    mainActivity.goToSlideshowFragment(
-                        galleryViewModel.imagePaths.value!!,
-                        it.position
-                    )
-            }
-        }
-
-        return v
     }
 
     interface ShowFragment {

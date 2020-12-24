@@ -10,7 +10,7 @@ class SlideshowViewModel : ViewModel() {
     var imagePaths = _imagePaths as LiveData<List<Image>>
 
     private var _selectedPosition: MutableLiveData<Int> = MutableLiveData()
-    var selectedPosition = _selectedPosition
+    //var selectedPosition = _selectedPosition
 
     fun setup(imagePaths: List<Image>, selectedPosition: Int) {
         _imagePaths.value = imagePaths

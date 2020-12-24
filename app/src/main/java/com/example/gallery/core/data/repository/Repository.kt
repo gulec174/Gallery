@@ -26,14 +26,17 @@ class Repository {
         )
 
         if (cursor != null && cursor.count > 0) {
-            cursor.moveToFirst()
-            do {
-                val path =
-                    cursor.getString(cursor.getColumnIndex("_data"))
-                imagesPath.add(Image(path))
-            } while (cursor.moveToNext())
-            cursor.close()
-            return imagesPath
+            with(cursor) {
+                moveToFirst()
+                do {
+                    val path =
+                        getString(getColumnIndex("_data"))
+                    imagesPath.add(Image(path))
+                } while (moveToNext())
+                close()
+                return imagesPath
+            }
+
         }
         return ArrayList()
     }

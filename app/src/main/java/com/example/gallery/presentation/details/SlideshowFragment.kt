@@ -5,51 +5,65 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.gallery.core.data.Image
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.gallery.R
-import java.io.File
+import com.example.gallery.core.data.Image
+import com.example.gallery.databinding.FragmentImageSliderBinding
+import com.example.gallery.presentation.common.GalleryViewModelFactory
+import com.example.gallery.presentation.common.di.ApplicationModule
+import com.example.gallery.presentation.common.di.DaggerApplicationComponent
+import javax.inject.Inject
 
 class SlideshowFragment : Fragment() {
-    private lateinit var viewPager: ViewPager
-    private lateinit var myViewPagerAdapter: GalleryAdapter
+    private lateinit var myViewPagerAdapter: SlideshowAdapter
     private var selectedPosition = 0
 
-    private val slideshowViewModel by lazy { SlideshowViewModel() }
+    @Inject
+    lateinit var galleryViewModelFactory: GalleryViewModelFactory
+
+    private lateinit var mSlideshowViewModel: SlideshowViewModel
+
+    private val viewBinding by viewBinding(FragmentImageSliderBinding::bind)
+
+    override fun onAttach(context: Context) {
+        DaggerApplicationComponent.builder().applicationModule(ApplicationModule(requireContext())).build().inject(this)
+        super.onAttach(context)
+        val aSlideshowViewModel: SlideshowViewModel by requireActivity().viewModels {
+            galleryViewModelFactory
+        }
+
+        mSlideshowViewModel = aSlideshowViewModel
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
-        val v: View =
-            inflater.inflate(R.layout.fragment_image_slider, container, false)
+        return inflater.inflate(R.layout.fragment_image_slider, container, false)
+    }
 
-        requireActivity()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         selectedPosition = arguments?.getInt(IMAGE_PATH_KEY) as Int
         @Suppress("UNCHECKED_CAST")
-        slideshowViewModel.setup(
+        mSlideshowViewModel.setup(
             arguments?.getSerializable(IMAGES_KEY) as ArrayList<Image>,
             selectedPosition
         )
 
-        myViewPagerAdapter = GalleryAdapter()
-        viewPager = v.findViewById(R.id.pager)
-        with(viewPager) {
+        myViewPagerAdapter =
+            SlideshowAdapter(requireActivity(), mSlideshowViewModel.imagePaths.value!!)
+
+        with(viewBinding.pager) {
             adapter = myViewPagerAdapter
             addOnPageChangeListener(viewPagerPageChangeListener)
             currentItem = selectedPosition
         }
-
-        return v
     }
 
     //  page change listener
@@ -60,39 +74,6 @@ class SlideshowFragment : Fragment() {
 
         override fun onPageScrolled(arg0: Int, arg1: Float, arg2: Int) {}
         override fun onPageScrollStateChanged(arg0: Int) {}
-    }
-
-    inner class GalleryAdapter : PagerAdapter() {
-        private lateinit var layoutInflater: LayoutInflater
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            layoutInflater =
-                requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val view: View =
-                layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false)
-            val imagePreview: ImageView = view.findViewById(R.id.image_full_screen)
-            Glide.with(requireActivity())
-                .load(File(slideshowViewModel.imagePaths.value!![slideshowViewModel.selectedPosition.value!!].uri))
-                .thumbnail(0.5f)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(imagePreview)
-
-            container.addView(view)
-            return view
-        }
-
-        override fun isViewFromObject(view: View, `object`: Any): Boolean {
-            return view === `object` as View
-        }
-
-        override fun getCount(): Int {
-            return slideshowViewModel.imagePaths.value!!.size
-        }
-
-        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            container.removeView(`object` as View)
-        }
     }
 
     companion object {
