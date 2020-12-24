@@ -15,9 +15,6 @@ import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
-    companion object {
-        const val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,10 +72,10 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
 
     }
 
-    override fun goToSlideshowFragment(imagesPath: List<Image>?, position: Int) {
+    override fun goToSlideshowFragment(imagesPath: List<Image>, position: Int) {
         val ft: FragmentTransaction =
             supportFragmentManager.beginTransaction()
-        val newFragment: SlideshowFragment? =
+        val newFragment: SlideshowFragment =
             SlideshowFragment.newInstance(imagesPath as ArrayList<Image>, position)
 
         with(ft) {
@@ -86,5 +83,17 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
             addToBackStack(null)
             commit()
         }
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount == 1) {
+            finish()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    companion object {
+        const val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 1
     }
 }

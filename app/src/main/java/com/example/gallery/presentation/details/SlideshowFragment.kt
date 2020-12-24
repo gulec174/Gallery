@@ -16,27 +16,12 @@ import com.example.gallery.core.data.Image
 import com.example.gallery.R
 import java.io.File
 
-
 class SlideshowFragment : Fragment() {
     private lateinit var viewPager: ViewPager
     private lateinit var myViewPagerAdapter: GalleryAdapter
     private var selectedPosition = 0
 
     private val slideshowViewModel by lazy { SlideshowViewModel() }
-
-    companion object {
-        const val IMAGES_KEY = "images"
-        const val IMAGE_PATH_KEY = "image_path"
-        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowFragment? {
-            val bundle = Bundle()
-            bundle.putSerializable(IMAGES_KEY, imagesPath)
-            bundle.putInt(IMAGE_PATH_KEY, position)
-
-            val slideshowDialogFragment = SlideshowFragment()
-            slideshowDialogFragment.arguments = bundle
-            return slideshowDialogFragment
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,8 +36,10 @@ class SlideshowFragment : Fragment() {
 
         selectedPosition = arguments?.getInt(IMAGE_PATH_KEY) as Int
         @Suppress("UNCHECKED_CAST")
-        slideshowViewModel.imagePaths = arguments?.getSerializable(IMAGES_KEY) as ArrayList<Image>
-
+        slideshowViewModel.setup(
+            arguments?.getSerializable(IMAGES_KEY) as ArrayList<Image>,
+            selectedPosition
+        )
 
         myViewPagerAdapter = GalleryAdapter()
         viewPager = v.findViewById(R.id.pager)
@@ -84,7 +71,8 @@ class SlideshowFragment : Fragment() {
             val view: View =
                 layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false)
             val imagePreview: ImageView = view.findViewById(R.id.image_full_screen)
-            Glide.with(requireActivity()).load(File(slideshowViewModel.getImage(position).uri))
+            Glide.with(requireActivity())
+                .load(File(slideshowViewModel.imagePaths.value!![slideshowViewModel.selectedPosition.value!!].uri))
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -99,7 +87,7 @@ class SlideshowFragment : Fragment() {
         }
 
         override fun getCount(): Int {
-            return slideshowViewModel.imagePaths.size
+            return slideshowViewModel.imagePaths.value!!.size
         }
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
@@ -107,4 +95,17 @@ class SlideshowFragment : Fragment() {
         }
     }
 
+    companion object {
+        const val IMAGES_KEY = "images"
+        const val IMAGE_PATH_KEY = "image_path"
+        fun newInstance(imagesPath: ArrayList<Image>, position: Int): SlideshowFragment {
+            val bundle = Bundle()
+            bundle.putSerializable(IMAGES_KEY, imagesPath)
+            bundle.putInt(IMAGE_PATH_KEY, position)
+
+            val slideshowDialogFragment = SlideshowFragment()
+            slideshowDialogFragment.arguments = bundle
+            return slideshowDialogFragment
+        }
+    }
 }

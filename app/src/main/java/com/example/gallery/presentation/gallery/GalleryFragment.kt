@@ -16,20 +16,10 @@ import com.example.gallery.core.data.Image
 
 class GalleryFragment : Fragment() {
 
-    interface ShowFragment {
-        fun goToSlideshowFragment(imagesPath: List<Image>?, position: Int)
-    }
-
     private lateinit var recyclerView: RecyclerView
     private val galleryViewModel: GalleryViewModel by lazy { GalleryViewModel(requireContext().contentResolver) }
 
     private lateinit var mainActivity: MainActivity
-
-    companion object {
-        fun getInstance(): GalleryFragment {
-            return GalleryFragment()
-        }
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -59,21 +49,37 @@ class GalleryFragment : Fragment() {
                 recyclerView,
                 object : ImageGalleryAdapter.ClickListener {
                     override fun onClick(view: View?, position: Int) {
-
-                        mainActivity.goToSlideshowFragment(
-                            galleryViewModel.getImages().value,
-                            position
-                        )
+                        galleryViewModel.onItemClick(position)
                     }
 
                     override fun onLongClick(view: View?, position: Int) {}
                 })
         )
 
-        galleryViewModel.imagePaths.observe(owner = this) {
+        galleryViewModel.imagePaths.observe(viewLifecycleOwner) {
             adapter.refreshImages(it)
         }
 
+        galleryViewModel.eventProvider.observe(viewLifecycleOwner) {
+            when (it) {
+                is GalleryViewModel.Event.ShowDetails ->
+                    mainActivity.goToSlideshowFragment(
+                        galleryViewModel.imagePaths.value!!,
+                        it.position
+                    )
+            }
+        }
+
         return v
+    }
+
+    interface ShowFragment {
+        fun goToSlideshowFragment(imagesPath: List<Image>, position: Int)
+    }
+
+    companion object {
+        fun getInstance(): GalleryFragment {
+            return GalleryFragment()
+        }
     }
 }
