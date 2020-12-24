@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
                 REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE
             )
         }
-
     }
 
     override fun onRequestPermissionsResult(
@@ -66,11 +65,11 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
 
         with(ft) {
             add(R.id.general_screen, newFragment as Fragment)
-            addToBackStack(null)
             commit()
         }
 
     }
+
 
     override fun goToSlideshowFragment(imagesPath: List<Image>, position: Int) {
         val ft: FragmentTransaction =
@@ -82,14 +81,6 @@ class MainActivity : AppCompatActivity(), GalleryFragment.ShowFragment {
             add(R.id.general_screen, newFragment as Fragment)
             addToBackStack(null)
             commit()
-        }
-    }
-
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            finish()
-        } else {
-            super.onBackPressed()
         }
     }
 

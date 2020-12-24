@@ -34,6 +34,8 @@ android {
 
 ext {
     lifecycleVersion = '2.2.0'
+    activityVersion = '1.1.0'
+    appCompatVersion = '1.2.0'
 }
 
 dependencies {
@@ -57,4 +59,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+
+    implementation "androidx.activity:activity-ktx:$activityVersion"
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
 }

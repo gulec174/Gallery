@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -13,17 +14,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.gallery.MainActivity
 import com.example.gallery.R
 import com.example.gallery.core.data.Image
+import com.example.gallery.presentation.common.GalleryViewModelFactory
+
 
 class GalleryFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private val galleryViewModel: GalleryViewModel by lazy { GalleryViewModel(requireContext().contentResolver) }
 
     private lateinit var mainActivity: MainActivity
+    private lateinit var mGalleryViewModel: GalleryViewModel
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
+        val aGalleryViewModel: GalleryViewModel by requireActivity().viewModels {
+            GalleryViewModelFactory(
+                requireContext().contentResolver
+            )
+        }
+
+        mGalleryViewModel = aGalleryViewModel
+
     }
 
 
@@ -32,6 +44,7 @@ class GalleryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         val v: View =
             inflater.inflate(R.layout.gallery_fragment, container, false)
 
@@ -49,22 +62,22 @@ class GalleryFragment : Fragment() {
                 recyclerView,
                 object : ImageGalleryAdapter.ClickListener {
                     override fun onClick(view: View?, position: Int) {
-                        galleryViewModel.onItemClick(position)
+                        mGalleryViewModel.onItemClick(position)
                     }
 
                     override fun onLongClick(view: View?, position: Int) {}
                 })
         )
 
-        galleryViewModel.imagePaths.observe(viewLifecycleOwner) {
+        mGalleryViewModel.imagePaths.observe(viewLifecycleOwner) {
             adapter.refreshImages(it)
         }
 
-        galleryViewModel.eventProvider.observe(viewLifecycleOwner) {
+        mGalleryViewModel.eventProvider.observe(viewLifecycleOwner) {
             when (it) {
                 is GalleryViewModel.Event.ShowDetails ->
                     mainActivity.goToSlideshowFragment(
-                        galleryViewModel.imagePaths.value!!,
+                        mGalleryViewModel.imagePaths.value!!,
                         it.position
                     )
             }
